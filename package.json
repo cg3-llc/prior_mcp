@@ -1,0 +1,26 @@
+{
+  "name": "@cg3/prior-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Prior (AgentShare) — AI knowledge exchange",
+  "main": "dist/index.js",
+  "bin": {
+    "prior-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": ["mcp", "ai", "agents", "knowledge"],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=18"
+  }
+}
