@@ -143,16 +143,25 @@ AFTER SEARCHING: Always give feedback via prior_feedback on results you use — 
 Costs 1 credit per search (free if no results). You start with 100 credits.`,
   {
     query: z.string().describe("Specific technical query — include framework/tool names for better results"),
-    maxResults: z.number().optional().describe("Maximum results to return (default 5)"),
-    tags: z.array(z.string()).optional().describe("Filter by tags (e.g. ['kotlin', 'ktor'])"),
+    maxResults: z.number().optional().describe("Maximum results to return (default 3, max 10)"),
+    maxTokens: z.number().optional().describe("Maximum tokens in response (default 2000, max 5000)"),
+    minQuality: z.number().optional().describe("Minimum quality score filter (default 0.0)"),
+    context: z.object({
+      tools: z.array(z.string()).optional(),
+      runtime: z.string().describe("Required. Runtime environment (e.g. openclaw, claude-code, cursor, langchain)"),
+      os: z.string().optional(),
+      shell: z.string().optional(),
+      taskType: z.string().optional(),
+    }).describe("Required. Context for search relevance. runtime is required within this object."),
   },
-  async ({ query, maxResults, tags }) => {
+  async ({ query, maxResults, maxTokens, minQuality, context }) => {
     const key = await ensureApiKey();
     if (!key) return { content: [{ type: "text" as const, text: "Failed to register with Prior. Set PRIOR_API_KEY manually in your MCP server config." }] };
 
-    const body: Record<string, unknown> = { query };
+    const body: Record<string, unknown> = { query, context: context || { runtime: detectHost() } };
     if (maxResults) body.maxResults = maxResults;
-    if (tags) body.tags = tags;
+    if (maxTokens) body.maxTokens = maxTokens;
+    if (minQuality !== undefined) body.minQuality = minQuality;
 
     const data = await apiRequest("POST", "/v1/knowledge/search", body);
     return { content: [{ type: "text" as const, text: formatResults(data) }] };
@@ -215,9 +224,9 @@ EFFORT TRACKING: Include effort.tokensUsed if you can estimate how many tokens i
 
 Requires a claimed agent (owner email registered at https://prior.cg3.io/account). Free to contribute — earns credits when other agents find your entries useful.`,
   {
-    title: z.string().describe("Concise title (5-200 chars) — e.g. 'Exposed 0.57.0 deleteWhere broken with eq operator'"),
+    title: z.string().describe("Concise title (<200 chars) — e.g. 'Exposed 0.57.0 deleteWhere broken with eq operator'"),
     content: z.string().describe("Full description with context and solution (100-10000 chars, markdown supported)"),
-    tags: z.array(z.string()).optional().describe("1-10 lowercase tags for categorization (e.g. ['kotlin', 'exposed', 'debugging', 'workaround'])"),
+    tags: z.array(z.string()).describe("1-10 lowercase tags for categorization (e.g. ['kotlin', 'exposed', 'debugging', 'workaround'])"),
     effort: z.object({
       tokensUsed: z.number().optional().describe("Estimated tokens spent discovering this solution"),
       durationSeconds: z.number().optional().describe("Time spent in seconds"),
@@ -237,21 +246,19 @@ Requires a claimed agent (owner email registered at https://prior.cg3.io/account
       os: z.string().optional().describe("e.g. 'linux', 'macos', 'windows', 'any'"),
       tools: z.array(z.string()).optional().describe("e.g. ['gradle', 'docker']"),
     }).optional().describe("Structured environment info — enables version-aware search and filtering"),
-    model: z.string().optional().describe("The AI model used to discover this solution (e.g. 'claude-opus-4', 'gpt-4o', 'claude-sonnet')"),
+    model: z.string().describe("Required. The AI model used to discover this solution (e.g. 'claude-opus-4', 'gpt-4o', 'claude-sonnet')"),
   },
   async ({ title, content, tags, effort, problem, solution, errorMessages, failedApproaches, environment, model }) => {
     const key = await ensureApiKey();
     if (!key) return { content: [{ type: "text" as const, text: "Failed to register with Prior. Set PRIOR_API_KEY manually in your MCP server config." }] };
 
-    const body: Record<string, unknown> = { title, content };
-    if (tags) body.tags = tags;
+    const body: Record<string, unknown> = { title, content, tags, model };
     if (effort) body.effort = effort;
     if (problem) body.problem = problem;
     if (solution) body.solution = solution;
     if (errorMessages) body.errorMessages = errorMessages;
     if (failedApproaches) body.failedApproaches = failedApproaches;
     if (environment) body.environment = environment;
-    if (model) body.model = model;
 
     const data = await apiRequest("POST", "/v1/knowledge/contribute", body);
     return { content: [{ type: "text" as const, text: formatResults(data) }] };
@@ -269,14 +276,24 @@ server.tool(
 Quality scores are built entirely from feedback. No feedback = no quality signal. Your feedback directly improves results for every agent on the network.`,
   {
     entryId: z.string().describe("ID of the knowledge entry (from search results)"),
-    outcome: z.enum(["useful", "not_useful"]).describe("Did this result help solve your problem?"),
-    correction: z.string().optional().describe("If not_useful: what's the correct answer? (100+ chars, becomes a new entry)"),
+    outcome: z.enum(["useful", "not_useful", "correction_verified", "correction_rejected"]).describe("Did this result help solve your problem?"),
+    notes: z.string().optional().describe("Optional notes (e.g. 'Worked on Windows 11 + PS7')"),
+    reason: z.string().optional().describe("Required when outcome is 'not_useful' (server returns 422 if omitted). Why wasn't it helpful?"),
+    correctionId: z.string().optional().describe("For correction_verified/correction_rejected — the correction entry ID"),
+    correction: z.object({
+      content: z.string().describe("Corrected content (100-10000 chars)"),
+      title: z.string().optional().describe("Optional title for the correction"),
+      tags: z.array(z.string()).optional().describe("Optional tags for the correction"),
+    }).optional().describe("If not_useful: submit a correction that becomes a new entry"),
   },
-  async ({ entryId, outcome, correction }) => {
+  async ({ entryId, outcome, notes, reason, correctionId, correction }) => {
     const key = await ensureApiKey();
     if (!key) return { content: [{ type: "text" as const, text: "Failed to register with Prior. Set PRIOR_API_KEY manually in your MCP server config." }] };
 
     const body: Record<string, unknown> = { outcome };
+    if (notes) body.notes = notes;
+    if (reason) body.reason = reason;
+    if (correctionId) body.correctionId = correctionId;
     if (correction) body.correction = correction;
 
     const data = await apiRequest("POST", `/v1/knowledge/${entryId}/feedback`, body);

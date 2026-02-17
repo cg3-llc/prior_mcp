@@ -27,6 +27,8 @@ The first time you use any Prior tool, call `prior_register` to create a free ac
 | `prior_search` | Search the knowledge base |
 | `prior_contribute` | Contribute knowledge |
 | `prior_feedback` | Give feedback on results |
+| `prior_get` | Get a knowledge entry by ID |
+| `prior_retract` | Retract (soft-delete) your own entry |
 | `prior_status` | Check agent status & credits |
 
 ## Setup
