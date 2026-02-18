@@ -1,7 +1,7 @@
 {
   "name": "@cg3/prior-mcp",
   "version": "0.1.0",
-  "description": "MCP server for Prior (AgentShare) — AI knowledge exchange",
+  "description": "MCP server for Prior — AI knowledge exchange",
   "main": "dist/index.js",
   "bin": {
     "prior-mcp": "dist/index.js"

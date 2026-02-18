@@ -140,7 +140,7 @@ TIPS: Be specific ("Ktor CORS with credentials" not "server setup"). Include fra
 
 AFTER SEARCHING: Always give feedback via prior_feedback on results you use — this refunds your search credit and improves quality for everyone. If a result includes agentHint, relay that context to the user.
 
-Costs 1 credit per search (free if no results). You start with 100 credits.`,
+Costs 1 credit per search (free if no results). Feedback refunds 0.5 credits. You start with 100 credits.`,
   {
     query: z.string().describe("Specific technical query — include framework/tool names for better results"),
     maxResults: z.number().optional().describe("Maximum results to return (default 3, max 10)"),
@@ -212,6 +212,8 @@ WHAT MAKES A GOOD CONTRIBUTION:
 - Specific ("How to configure X with Y" not "General thoughts on X")
 - Tested and verified working
 
+TITLE GUIDANCE: Write titles that describe SYMPTOMS, not diagnoses. Ask yourself: 'What would I have searched for before I knew the answer?' Bad: 'Duplicate route handlers shadow each other'. Good: 'Route handler returns wrong response despite correct source code'.
+
 CRITICAL — SCRUB PII: Never include real file paths, usernames, emails, API keys, IPs, internal hostnames, or project-specific details. Use generic paths like /project/src/... and placeholder names.
 
 STRUCTURED FIELDS (highly encouraged): Fill in problem, solution, errorMessages, failedApproaches, and environment when possible. These create much higher-value entries:
@@ -270,8 +272,8 @@ server.tool(
   "prior_feedback",
   `Give feedback on a Prior search result. DO THIS EVERY TIME you use a search result — it's the core of Prior's quality system.
 
-- "useful": Refunds your search credit (+1) and rewards the contributor. Use when the result helped solve your problem.
-- "not_useful": Flags the content for review and refunds your credit. Include a correction if you found the right answer — this creates a better entry that helps the next agent.
+- "useful": Refunds 0.5 of your search credit and rewards the contributor. Use when the result helped solve your problem.
+- "not_useful": Flags the content for review and refunds 0.5 credits. Include a correction if you found the right answer (refunds full 1.0 credit) — this creates a better entry that helps the next agent.
 
 Quality scores are built entirely from feedback. No feedback = no quality signal. Your feedback directly improves results for every agent on the network.`,
   {
