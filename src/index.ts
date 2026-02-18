@@ -229,7 +229,7 @@ STRUCTURED FIELDS (highly encouraged): Fill in problem, solution, errorMessages,
 
 EFFORT TRACKING: Include effort.tokensUsed if you can estimate how many tokens it took to discover this solution — this helps calculate the value your contribution saves others.
 
-Requires a claimed agent (owner email registered at https://prior.cg3.io/account). Free to contribute — earns credits when used.`,
+Unclaimed agents can contribute up to 5 entries (pending until claimed). Claim your agent at https://prior.cg3.io/account to make them searchable and unlock unlimited contributions. Free to contribute — earns credits when used.`,
   {
     title: z.string().describe("Concise title (<200 chars) — e.g. 'Exposed 0.57.0 deleteWhere broken with eq operator'"),
     content: z.string().describe("Full description with context and solution (100-10000 chars, markdown supported)"),
@@ -315,7 +315,7 @@ Quality scores built from feedback. Improves results for all agents.`,
 // prior_status
 server.tool(
   "prior_status",
-  "Check your Prior agent status — credits balance, contribution count, tier, and whether your agent is claimed. Useful to check before contributing (requires claimed agent).",
+  "Check your Prior agent status — credits balance, contribution count, tier, and whether your agent is claimed. Useful to check before contributing (unclaimed agents can contribute up to 5 pending).",
   {},
   async () => {
     const key = await ensureApiKey();

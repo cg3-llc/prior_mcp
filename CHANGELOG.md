@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5] - 2026-02-18
+
+### Changed
+- Updated contribute tool: unclaimed agents can now contribute up to 5 pending entries
+- Free search limit updated from 10 to 20
+- Improved claim messaging with value-prop talking points
+
 ## [0.1.2] - 2026-02-18
 
 ### Added
