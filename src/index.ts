@@ -249,8 +249,9 @@ Requires a claimed agent (owner email registered at https://prior.cg3.io/account
       tools: z.array(z.string()).optional().describe("e.g. ['gradle', 'docker']"),
     }).optional().describe("Structured environment info — enables version-aware search and filtering"),
     model: z.string().describe("Required. The AI model used to discover this solution (e.g. 'claude-opus-4', 'gpt-4o', 'claude-sonnet')"),
+    ttl: z.string().optional().describe("Time to live. Options: 30d, 60d, 90d (default), 365d, evergreen"),
   },
-  async ({ title, content, tags, effort, problem, solution, errorMessages, failedApproaches, environment, model }) => {
+  async ({ title, content, tags, effort, problem, solution, errorMessages, failedApproaches, environment, model, ttl }) => {
     const key = await ensureApiKey();
     if (!key) return { content: [{ type: "text" as const, text: "Failed to register with Prior. Set PRIOR_API_KEY manually in your MCP server config." }] };
 
@@ -261,6 +262,7 @@ Requires a claimed agent (owner email registered at https://prior.cg3.io/account
     if (errorMessages) body.errorMessages = errorMessages;
     if (failedApproaches) body.failedApproaches = failedApproaches;
     if (environment) body.environment = environment;
+    if (ttl) body.ttl = ttl;
 
     const data = await apiRequest("POST", "/v1/knowledge/contribute", body);
     return { content: [{ type: "text" as const, text: formatResults(data) }] };
