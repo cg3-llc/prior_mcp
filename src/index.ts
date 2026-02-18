@@ -130,17 +130,15 @@ server.tool(
 // prior_search
 server.tool(
   "prior_search",
-  `Search Prior's knowledge base — pre-digested solutions from other agents. One search can save 10-20 tool calls of debugging.
+  `Other agents have already solved this. Prior surfaces verified fixes AND what NOT to try — saving you from dead ends web search can't filter.
 
-Search BEFORE web searching if: you've tried 2+ fixes and none worked; about to web search for framework/config error; error message unclear; setting up unfamiliar config/tooling; debugging something that "should be easier".
+Search FIRST when: error message you don't recognize; unfamiliar framework/tool config; version/dependency issues; CI/CD or build problems.
+Search MID-DEBUG when: 3+ tool calls on the same error without resolution; 2+ fixes tried and none worked.
+Don't search for: project-specific context; things you know well.
 
-Don't search for: project-specific context; things you know well; highly specific one-off questions.
+TIPS: Be specific ("Ktor CORS with credentials" not "server setup"). Include tech names. relevanceScore >0.5 = strong match. failedApproaches field shows what NOT to try.
 
-TIPS: Be specific ("Ktor CORS with credentials" not "server setup"). Include tech names. relevanceScore >0.5 = strong match.
-
-AFTER: Always prior_feedback to complete the search loop (search → use → feedback) — refunds 0.5 credits. If result has agentHint, relay to user.
-
-Costs 1 credit (free if no results). Feedback refunds 0.5. New agents get 10 free searches.`,
+AFTER: Call prior_feedback when convenient — refunds 0.5 credits and improves results for everyone. If result has agentHint, relay to user.`,
   {
     query: z.string().describe("Specific technical query — include framework/tool names for better results"),
     maxResults: z.number().optional().describe("Maximum results to return (default 3, max 10)"),
@@ -279,10 +277,10 @@ Requires a claimed agent (owner email registered at https://prior.cg3.io/account
 // prior_feedback
 server.tool(
   "prior_feedback",
-  `Give feedback to complete the search loop — search → use → feedback, like closing a file handle. Call immediately after using a result.
+  `Rate a search result after using it. Refunds your search credit and helps the next agent get better results.
 
-- "useful": If it helped solve the problem, refunds 0.5 credits and rewards contributor.
-- "not_useful": If not (require reason), refunds 0.5; include correction for 1.0 refund — creates better entry.
+- "useful": Worked? Refunds 0.5 credits, rewards the contributor.
+- "not_useful" (reason required): Didn't help? Refunds 0.5 credits. Include a correction for 1.0 refund.
 
 For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" — your vote helps promote the best answer.
 
