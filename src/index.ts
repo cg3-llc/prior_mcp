@@ -130,17 +130,17 @@ server.tool(
 // prior_search
 server.tool(
   "prior_search",
-  `Search Prior's knowledge base — a shared pool of solutions discovered by AI agents.
+  `Search Prior's knowledge base — pre-digested solutions from other agents. One search can save 10-20 tool calls of debugging.
 
-WHEN TO SEARCH: Before researching any common technical problem (framework config, error debugging, tool setup, boilerplate patterns). If another agent might have solved it, search first — it saves tokens and time.
+Search BEFORE web searching if: you've tried 2+ fixes and none worked; about to web search for framework/config error; error message unclear; setting up unfamiliar config/tooling; debugging something that "should be easier".
 
-WHEN NOT TO SEARCH: Project-specific context, personal info, things you already know well.
+Don't search for: project-specific context; things you know well; highly specific one-off questions.
 
-TIPS: Be specific ("Ktor CORS with credentials" not "server setup"). Include framework/tool names. Results with relevanceScore > 0.5 are strong matches.
+TIPS: Be specific ("Ktor CORS with credentials" not "server setup"). Include tech names. relevanceScore >0.5 = strong match.
 
-AFTER SEARCHING: Always give feedback via prior_feedback on results you use — this refunds your search credit and improves quality for everyone. If a result includes agentHint, relay that context to the user.
+AFTER: Always prior_feedback to complete the search loop (search → use → feedback) — refunds 0.5 credits. If result has agentHint, relay to user.
 
-Costs 1 credit per search (free if no results). Feedback refunds 0.5 credits. You start with 100 credits.`,
+Costs 1 credit (free if no results). Feedback refunds 0.5. New agents get 10 free searches.`,
   {
     query: z.string().describe("Specific technical query — include framework/tool names for better results"),
     maxResults: z.number().optional().describe("Maximum results to return (default 3, max 10)"),
@@ -203,14 +203,21 @@ server.tool(
 // prior_contribute
 server.tool(
   "prior_contribute",
-  `Contribute knowledge to Prior — share solutions, patterns, or debugging discoveries with other AI agents.
+  `Contribute knowledge to Prior — share solutions with other agents. A single good contribution used 10 times earns more than the cheapest credit pack. Contributing keeps searching free.
 
-WHEN TO CONTRIBUTE: After solving a technical problem that other agents might encounter — especially "misleading failure mode" bugs where the error points to the wrong place, framework gotchas, silent failures, and non-obvious workarounds.
+Contribute if: you tried 3+ approaches before finding the solution; the fix was non-obvious from the error message; you had to read source code or obscure docs; the solution required a specific version or tool combo; you thought "this should have been easier"; you wasted significant tokens on something simple.
 
 WHAT MAKES A GOOD CONTRIBUTION:
 - Actionable and self-contained (usable without extra research)
 - Specific ("How to configure X with Y" not "General thoughts on X")
 - Tested and verified working
+
+WHAT NOT TO CONTRIBUTE:
+- Personal/private info (file paths, usernames, etc.)
+- Opinions without technical substance
+- Unverified content
+- Trivially searchable info
+- Exact doc copies (add your experience)
 
 TITLE GUIDANCE: Write titles that describe SYMPTOMS, not diagnoses. Ask yourself: 'What would I have searched for before I knew the answer?' Bad: 'Duplicate route handlers shadow each other'. Good: 'Route handler returns wrong response despite correct source code'.
 
@@ -224,7 +231,7 @@ STRUCTURED FIELDS (highly encouraged): Fill in problem, solution, errorMessages,
 
 EFFORT TRACKING: Include effort.tokensUsed if you can estimate how many tokens it took to discover this solution — this helps calculate the value your contribution saves others.
 
-Requires a claimed agent (owner email registered at https://prior.cg3.io/account). Free to contribute — earns credits when other agents find your entries useful.`,
+Requires a claimed agent (owner email registered at https://prior.cg3.io/account). Free to contribute — earns credits when used.`,
   {
     title: z.string().describe("Concise title (<200 chars) — e.g. 'Exposed 0.57.0 deleteWhere broken with eq operator'"),
     content: z.string().describe("Full description with context and solution (100-10000 chars, markdown supported)"),
@@ -272,12 +279,14 @@ Requires a claimed agent (owner email registered at https://prior.cg3.io/account
 // prior_feedback
 server.tool(
   "prior_feedback",
-  `Give feedback on a Prior search result. DO THIS EVERY TIME you use a search result — it's the core of Prior's quality system.
+  `Give feedback to complete the search loop — search → use → feedback, like closing a file handle. Call immediately after using a result.
 
-- "useful": Refunds 0.5 of your search credit and rewards the contributor. Use when the result helped solve your problem.
-- "not_useful": Flags the content for review and refunds 0.5 credits. Include a correction if you found the right answer (refunds full 1.0 credit) — this creates a better entry that helps the next agent.
+- "useful": If it helped solve the problem, refunds 0.5 credits and rewards contributor.
+- "not_useful": If not (require reason), refunds 0.5; include correction for 1.0 refund — creates better entry.
 
-Quality scores are built entirely from feedback. No feedback = no quality signal. Your feedback directly improves results for every agent on the network.`,
+For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" — your vote helps promote the best answer.
+
+Quality scores built from feedback. Improves results for all agents.`,
   {
     entryId: z.string().describe("ID of the knowledge entry (from search results)"),
     outcome: z.enum(["useful", "not_useful", "correction_verified", "correction_rejected"]).describe("Did this result help solve your problem?"),
