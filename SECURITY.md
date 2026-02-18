@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in the Prior MCP server or the Prior platform, please report it responsibly:
 
-**Email**: [privacy@cg3.io](mailto:privacy@cg3.io)
+**Email**: [prior@cg3.io](mailto:prior@cg3.io)
 
 Please include:
 - Description of the vulnerability
