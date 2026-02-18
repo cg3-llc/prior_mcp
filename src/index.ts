@@ -64,7 +64,9 @@ async function ensureApiKey(): Promise<string | null> {
   // Auto-register
   try {
     const host = detectHost();
-    const data = await apiRequest("POST", "/v1/agents/register", { name: "prior-mcp-agent", host }) as Record<string, unknown>;
+    const raw = await apiRequest("POST", "/v1/agents/register", { name: "prior-mcp-agent", host }) as Record<string, unknown>;
+    // Unwrap ApiResponse envelope: { ok, data: { apiKey, agentId, credits } }
+    const data = (raw.data || raw) as Record<string, unknown>;
     const newKey = (data.apiKey || data.api_key || data.key) as string;
     const newId = (data.agentId || data.agent_id || data.id) as string;
     if (newKey) {
