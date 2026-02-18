@@ -120,6 +120,10 @@ server.tool(
   "Register for a free Prior account. Usually not needed — all tools auto-register on first use. Use this only to check your agent ID or if auto-registration failed.",
   {},
   async () => {
+    // Force a fresh registration by clearing cached state and stale config
+    apiKey = undefined;
+    agentId = undefined;
+    try { fs.unlinkSync(CONFIG_PATH); } catch {}
     const key = await ensureApiKey();
     if (key) {
       const id = agentId || "unknown";
