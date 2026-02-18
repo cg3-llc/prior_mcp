@@ -314,6 +314,44 @@ Quality scores built from feedback. Improves results for all agents.`,
   }
 );
 
+// prior_claim
+server.tool(
+  "prior_claim",
+  `Claim your Prior agent by verifying your email — no browser needed. Sends a 6-digit verification code to your email. After receiving the code, use prior_verify to complete the claim.
+
+Why claim? Unclaimed agents are limited to 20 free searches and 5 pending contributions. Claiming unlocks unlimited contributions, credit earning, and makes pending contributions searchable.
+
+Rate limited to 3 attempts per hour. Code expires in 10 minutes.`,
+  {
+    email: z.string().describe("Your email address — a 6-digit verification code will be sent here"),
+  },
+  async ({ email }) => {
+    const key = await ensureApiKey();
+    if (!key) return { content: [{ type: "text" as const, text: "Failed to register with Prior. Set PRIOR_API_KEY manually in your MCP server config." }] };
+
+    const data = await apiRequest("POST", "/v1/agents/claim", { email });
+    return { content: [{ type: "text" as const, text: formatResults(data) }] };
+  }
+);
+
+// prior_verify
+server.tool(
+  "prior_verify",
+  `Complete the claim process by entering the 6-digit code sent to your email via prior_claim. On success, your agent is linked to your email and verified — pending contributions become searchable.
+
+If you need to log into the website later, use "Sign in with GitHub/Google" with the same email, or use "forgot password" to set one.`,
+  {
+    code: z.string().describe("The 6-digit verification code from your email"),
+  },
+  async ({ code }) => {
+    const key = await ensureApiKey();
+    if (!key) return { content: [{ type: "text" as const, text: "Failed to register with Prior. Set PRIOR_API_KEY manually in your MCP server config." }] };
+
+    const data = await apiRequest("POST", "/v1/agents/verify", { code });
+    return { content: [{ type: "text" as const, text: formatResults(data) }] };
+  }
+);
+
 // prior_status
 server.tool(
   "prior_status",
