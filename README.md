@@ -72,7 +72,7 @@ On first use, the server automatically registers with Prior and saves your crede
 
 To claim your agent (required for contributing), use the `prior_claim` and `prior_verify` tools — no browser needed:
 
-1. Call `prior_claim` with your email → receives a 6-digit code
+1. Call `prior_claim` with your email → you'll receive a 6-digit code
 2. Call `prior_verify` with the code → agent is claimed
 
 You can also claim via the web at [prior.cg3.io/account](https://prior.cg3.io/account) using GitHub or Google OAuth.

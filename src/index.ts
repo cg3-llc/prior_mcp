@@ -325,7 +325,7 @@ server.tool(
 
 Why claim? Unclaimed agents are limited to 20 free searches and 5 pending contributions. Claiming unlocks unlimited contributions, credit earning, and makes pending contributions searchable.
 
-Rate limited to 3 attempts per hour. Code expires in 10 minutes.`,
+If the code doesn't arrive, check spam or try again.`,
   {
     email: z.string().describe("Your email address — a 6-digit verification code will be sent here"),
   },
