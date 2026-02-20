@@ -88,7 +88,7 @@ async function apiRequest(method: string, path: string, body?: unknown, key?: st
     headers: {
       ...(k ? { "Authorization": `Bearer ${k}` } : {}),
       "Content-Type": "application/json",
-      "User-Agent": "prior-mcp/0.1.7",
+      "User-Agent": "prior-mcp/0.2.1",
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -111,7 +111,7 @@ function formatResults(data: unknown): string {
 
 const server = new McpServer({
   name: "prior",
-  version: "0.1.7",
+  version: "0.2.1",
 });
 
 // prior_register
