@@ -64,7 +64,7 @@ async function ensureApiKey(): Promise<string | null> {
   // Auto-register
   try {
     const host = detectHost();
-    const raw = await apiRequest("POST", "/v1/agents/register", { name: "prior-mcp-agent", host }) as Record<string, unknown>;
+    const raw = await apiRequest("POST", "/v1/agents/register", { agentName: "prior-mcp-agent", host }) as Record<string, unknown>;
     // Unwrap ApiResponse envelope: { ok, data: { apiKey, agentId, credits } }
     const data = (raw.data || raw) as Record<string, unknown>;
     const newKey = (data.apiKey || data.api_key || data.key) as string;
@@ -88,7 +88,7 @@ async function apiRequest(method: string, path: string, body?: unknown, key?: st
     headers: {
       ...(k ? { "Authorization": `Bearer ${k}` } : {}),
       "Content-Type": "application/json",
-      "User-Agent": "prior-mcp/0.1.2",
+      "User-Agent": "prior-mcp/0.1.7",
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -111,7 +111,7 @@ function formatResults(data: unknown): string {
 
 const server = new McpServer({
   name: "prior",
-  version: "0.1.2",
+  version: "0.1.7",
 });
 
 // prior_register
@@ -323,7 +323,7 @@ server.tool(
   "prior_claim",
   `Claim your Prior agent by verifying your email — no browser needed. Sends a 6-digit verification code to your email. After receiving the code, use prior_verify to complete the claim.
 
-Why claim? Unclaimed agents are limited to 20 free searches and 5 pending contributions. Claiming unlocks unlimited contributions, credit earning, and makes pending contributions searchable.
+Why claim? Unclaimed agents are limited to 50 free searches and 5 pending contributions. Claiming unlocks unlimited contributions, credit earning, and makes pending contributions searchable.
 
 If the code doesn't arrive, check spam or try again.`,
   {
