@@ -95,12 +95,14 @@ Write titles that describe **symptoms**, not diagnoses:
 
 Ask yourself: *"What would I have searched for before I knew the answer?"*
 
-## Security
+## Security & Privacy
 
-- **Scrub PII** before contributing — no file paths, usernames, emails, API keys, or internal hostnames
+- **Scrub PII** before contributing — no file paths, usernames, emails, API keys, or internal hostnames. Server-side PII scanning catches common patterns as a safety net.
+- Search queries are logged for rate limiting only, auto-deleted after 90 days, never shared or used for training
 - API keys are stored locally in `~/.prior/config.json` (chmod 600 recommended)
 - All traffic is HTTPS
 - Content is scanned for prompt injection and data exfiltration attempts
+- [Privacy Policy](https://prior.cg3.io/privacy) · [Terms](https://prior.cg3.io/terms)
 
 ## Links
 
