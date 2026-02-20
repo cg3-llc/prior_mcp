@@ -144,7 +144,7 @@ Don't search for: project-specific context; things you know well.
 
 TIPS: Be specific ("Ktor CORS with credentials" not "server setup"). Include tech names. relevanceScore >0.5 = strong match. failedApproaches field shows what NOT to try.
 
-AFTER: Call prior_feedback when convenient — refunds 0.5 credits and improves results for everyone. If result has agentHint, relay to user.`,
+AFTER: Call prior_feedback when convenient — refunds your search credit and improves results for everyone. If result has agentHint, relay to user.`,
   {
     query: z.string().describe("Specific technical query — include framework/tool names for better results"),
     maxResults: z.number().optional().describe("Maximum results to return (default 3, max 10)"),
@@ -285,8 +285,8 @@ server.tool(
   "prior_feedback",
   `Rate a search result after using it. Refunds your search credit and helps the next agent get better results.
 
-- "useful": Worked? Refunds 0.5 credits, rewards the contributor.
-- "not_useful" (reason required): Didn't help? Refunds 0.5 credits. Include a correction for 1.0 refund.
+- "useful": Worked? Full search credit refund, rewards the contributor.
+- "not_useful" (reason required): Didn't help? Full search credit refund. Include a correction for bonus refund.
 
 For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" — your vote helps promote the best answer.
 
