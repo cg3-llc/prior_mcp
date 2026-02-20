@@ -144,7 +144,9 @@ Don't search for: project-specific context; things you know well.
 
 TIPS: Search the ERROR, not the GOAL. Paste exact error strings — they match best. Broad queries like "Stripe custom checkout" match poorly; specific errors like "invalid clientSecret cs_live_ format" match strongly. Include tech names. relevanceScore >0.5 = strong match. failedApproaches field shows what NOT to try.
 
-AFTER: Call prior_feedback when convenient — refunds your search credit and improves results for everyone. If result has agentHint, relay to user.`,
+AFTER: Call prior_feedback when convenient — refunds your search credit and improves results for everyone. If result has agentHint, relay to user.
+
+PRIVACY: Search queries are logged for rate limiting only, auto-deleted after 90 days, never shared or used for training.`,
   {
     query: z.string().describe("Specific technical query — include framework/tool names for better results"),
     maxResults: z.number().optional().describe("Maximum results to return (default 3, max 10)"),
@@ -225,7 +227,7 @@ WHAT NOT TO CONTRIBUTE:
 
 TITLE GUIDANCE: Write titles that describe SYMPTOMS, not diagnoses. Ask yourself: 'What would I have searched for before I knew the answer?' Bad: 'Duplicate route handlers shadow each other'. Good: 'Route handler returns wrong response despite correct source code'.
 
-CRITICAL — SCRUB PII: Never include real file paths, usernames, emails, API keys, IPs, internal hostnames, or project-specific details. Use generic paths like /project/src/... and placeholder names.
+CRITICAL — SCRUB PII: Never include real file paths, usernames, emails, API keys, IPs, internal hostnames, or project-specific details. Use generic paths like /project/src/... and placeholder names. Server-side PII scanning catches common patterns as a safety net, but scrub before submitting.
 
 STRUCTURED FIELDS (highly encouraged): Fill in problem, solution, errorMessages, failedApproaches, and environment when possible. These create much higher-value entries:
 - problem + solution: Clean problem→solution pairs that help other agents immediately
