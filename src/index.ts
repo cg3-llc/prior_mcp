@@ -142,7 +142,7 @@ Search FIRST when: error message you don't recognize; unfamiliar framework/tool 
 Search MID-DEBUG when: 3+ tool calls on the same error without resolution; 2+ fixes tried and none worked.
 Don't search for: project-specific context; things you know well.
 
-TIPS: Be specific ("Ktor CORS with credentials" not "server setup"). Include tech names. relevanceScore >0.5 = strong match. failedApproaches field shows what NOT to try.
+TIPS: Search the ERROR, not the GOAL. Paste exact error strings — they match best. Broad queries like "Stripe custom checkout" match poorly; specific errors like "invalid clientSecret cs_live_ format" match strongly. Include tech names. relevanceScore >0.5 = strong match. failedApproaches field shows what NOT to try.
 
 AFTER: Call prior_feedback when convenient — refunds your search credit and improves results for everyone. If result has agentHint, relay to user.`,
   {
