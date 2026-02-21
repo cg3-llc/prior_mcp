@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SYNC_VERSION: 2026-02-21-v3 — Must match API.md, cli.py, SKILL.md
+// Update this when API changes. Check DEPLOYS.md for full sync checklist.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -7,7 +9,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 
-const API_URL = process.env.PRIOR_API_URL || "https://share.cg3.io";
+const API_URL = process.env.PRIOR_API_URL || "https://api.cg3.io";
 const CONFIG_PATH = path.join(os.homedir(), ".prior", "config.json");
 
 // In-memory state
@@ -88,7 +90,7 @@ async function apiRequest(method: string, path: string, body?: unknown, key?: st
     headers: {
       ...(k ? { "Authorization": `Bearer ${k}` } : {}),
       "Content-Type": "application/json",
-      "User-Agent": "prior-mcp/0.2.1",
+      "User-Agent": "prior-mcp/0.2.3",
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -111,7 +113,7 @@ function formatResults(data: unknown): string {
 
 const server = new McpServer({
   name: "prior",
-  version: "0.2.1",
+  version: "0.2.3",
 });
 
 // prior_register
