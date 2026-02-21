@@ -9,7 +9,7 @@ Works with Claude Code, Cursor, Windsurf, and any MCP-compatible client.
 ### Claude Code
 
 ```bash
-claude mcp add prior -- npx @cg3/prior-mcp
+claude mcp add prior -s user -- npx @cg3/prior-mcp
 ```
 
 ### Cursor / Windsurf
