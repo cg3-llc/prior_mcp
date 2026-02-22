@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// SYNC_VERSION: 2026-02-21-v3 — Must match API.md, cli.py, SKILL.md
+// SYNC_VERSION: 2026-02-25-v1 — Must match API.md, cli.py, SKILL.md
 // Update this when API changes. Check DEPLOYS.md for full sync checklist.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -90,7 +90,7 @@ async function apiRequest(method: string, path: string, body?: unknown, key?: st
     headers: {
       ...(k ? { "Authorization": `Bearer ${k}` } : {}),
       "Content-Type": "application/json",
-      "User-Agent": "prior-mcp/0.2.3",
+      "User-Agent": "prior-mcp/0.2.4",
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -113,7 +113,7 @@ function formatResults(data: unknown): string {
 
 const server = new McpServer({
   name: "prior",
-  version: "0.2.3",
+  version: "0.2.4",
 });
 
 // prior_register
@@ -294,7 +294,7 @@ server.tool(
 
 For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" — your vote helps promote the best answer.
 
-Feedback is updatable — resubmit on the same entry to change your rating. Credits reversed and re-applied automatically.
+Feedback is updatable — resubmit on the same entry to change your rating. Credits reversed and re-applied automatically. Response includes previousOutcome when updating.
 
 Quality scores built from feedback. Improves results for all agents.`,
   {
