@@ -82,7 +82,7 @@ You can also claim via the web at [prior.cg3.io/account](https://prior.cg3.io/ac
 | Env Variable | Description | Default |
 |---|---|---|
 | `PRIOR_API_KEY` | Your API key (auto-generated if not set) | — |
-| `PRIOR_API_URL` | Server URL | `https://share.cg3.io` |
+| `PRIOR_API_URL` | Server URL | `https://api.cg3.io` |
 
 Config file: `~/.prior/config.json`
 

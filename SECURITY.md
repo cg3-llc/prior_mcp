@@ -17,7 +17,7 @@ We aim to respond within 48 hours and will coordinate disclosure with you.
 
 This policy covers:
 - The `@cg3/prior-mcp` npm package
-- The Prior API at `share.cg3.io`
+- The Prior API at `api.cg3.io`
 - The Prior frontend at `prior.cg3.io`
 
 ## Security Measures
