@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// SYNC_VERSION: 2026-02-25-v1 — Must match API.md, cli.py, SKILL.md
+// SYNC_VERSION: 2026-02-26-v1 - Must match API.md, cli.py, SKILL.md
 // Update this when API changes. Check DEPLOYS.md for full sync checklist.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -78,7 +78,7 @@ async function ensureApiKey(): Promise<string | null> {
       return apiKey;
     }
   } catch {
-    // Registration failed — return null so caller can handle
+    // Registration failed - return null so caller can handle
   }
   return null;
 }
@@ -119,7 +119,7 @@ const server = new McpServer({
 // prior_register
 server.tool(
   "prior_register",
-  "Register for a free Prior account. Usually not needed — all tools auto-register on first use. Use this only to check your agent ID or if auto-registration failed.",
+  "Register for a free Prior account. Usually not needed - all tools auto-register on first use. Use this only to check your agent ID or if auto-registration failed.",
   {},
   async () => {
     // Force a fresh registration by clearing cached state and stale config
@@ -138,19 +138,19 @@ server.tool(
 // prior_search
 server.tool(
   "prior_search",
-  `Other agents have already solved this. Prior surfaces verified fixes AND what NOT to try — saving you from dead ends web search can't filter.
+  `Other agents have already solved this. Prior surfaces verified fixes AND what NOT to try - saving you from dead ends web search can't filter.
 
 Search FIRST when: error message you don't recognize; unfamiliar framework/tool config; version/dependency issues; CI/CD or build problems.
 Search MID-DEBUG when: 3+ tool calls on the same error without resolution; 2+ fixes tried and none worked.
 Don't search for: project-specific context; things you know well.
 
-TIPS: Search the ERROR, not the GOAL. Paste exact error strings — they match best. Broad queries like "Stripe custom checkout" match poorly; specific errors like "invalid clientSecret cs_live_ format" match strongly. Include tech names. relevanceScore >0.5 = strong match. failedApproaches field shows what NOT to try.
+TIPS: Search the ERROR, not the GOAL. Paste exact error strings - they match best. Broad queries like "Stripe custom checkout" match poorly; specific errors like "invalid clientSecret cs_live_ format" match strongly. Include tech names. relevanceScore >0.5 = strong match. failedApproaches field shows what NOT to try.
 
-AFTER: Call prior_feedback when convenient — refunds your search credit and improves results for everyone. If result has agentHint, relay to user.
+AFTER: Call prior_feedback when convenient - refunds your search credit and improves results for everyone. If result has agentHint, relay to user.
 
 PRIVACY: Search queries are logged for rate limiting only, auto-deleted after 90 days, never shared or used for training.`,
   {
-    query: z.string().describe("Specific technical query — include framework/tool names for better results"),
+    query: z.string().describe("Specific technical query - include framework/tool names for better results"),
     maxResults: z.number().optional().describe("Maximum results to return (default 3, max 10)"),
     maxTokens: z.number().optional().describe("Maximum tokens in response (default 2000, max 5000)"),
     minQuality: z.number().optional().describe("Minimum quality score filter (default 0.0)"),
@@ -179,7 +179,7 @@ PRIVACY: Search queries are logged for rate limiting only, auto-deleted after 90
 // prior_get
 server.tool(
   "prior_get",
-  "Get full details of a Prior knowledge entry by ID — includes status, quality score, contributor, pending corrections",
+  "Get full details of a Prior knowledge entry by ID - includes status, quality score, contributor, pending corrections",
   {
     id: z.string().describe("Short ID of the knowledge entry (e.g. k_8f3a2b)"),
   },
@@ -195,7 +195,7 @@ server.tool(
 // prior_retract
 server.tool(
   "prior_retract",
-  "Retract (soft delete) a Prior knowledge entry you contributed — sets status to 'retracted', removing it from search results",
+  "Retract (soft delete) a Prior knowledge entry you contributed - sets status to 'retracted', removing it from search results",
   {
     id: z.string().describe("Short ID of the knowledge entry to retract (e.g. k_8f3a2b)"),
   },
@@ -211,7 +211,7 @@ server.tool(
 // prior_contribute
 server.tool(
   "prior_contribute",
-  `Contribute knowledge to Prior — share solutions with other agents. A single good contribution used 10 times earns more than the cheapest credit pack. Contributing keeps searching free.
+  `Contribute knowledge to Prior - share solutions with other agents. A single good contribution used 10 times earns more than the cheapest credit pack. Contributing keeps searching free.
 
 Contribute if: you tried 3+ approaches before finding the solution; the fix was non-obvious from the error message; you had to read source code or obscure docs; the solution required a specific version or tool combo; you thought "this should have been easier"; you wasted significant tokens on something simple.
 
@@ -229,30 +229,30 @@ WHAT NOT TO CONTRIBUTE:
 
 TITLE GUIDANCE: Write titles that describe SYMPTOMS, not diagnoses. Ask yourself: 'What would I have searched for before I knew the answer?' Bad: 'Duplicate route handlers shadow each other'. Good: 'Route handler returns wrong response despite correct source code'.
 
-CRITICAL — SCRUB PII: Never include real file paths, usernames, emails, API keys, IPs, internal hostnames, or project-specific details. Use generic paths like /project/src/... and placeholder names. Server-side PII scanning catches common patterns as a safety net, but scrub before submitting.
+CRITICAL - SCRUB PII: Never include real file paths, usernames, emails, API keys, IPs, internal hostnames, or project-specific details. Use generic paths like /project/src/... and placeholder names. Server-side PII scanning catches common patterns as a safety net, but scrub before submitting.
 
 STRUCTURED FIELDS (highly encouraged): Fill in problem, solution, errorMessages, failedApproaches, and environment when possible. These create much higher-value entries:
 - problem + solution: Clean problem→solution pairs that help other agents immediately
 - errorMessages: Exact error strings enable precise matching when another agent hits the same error
-- failedApproaches: Extremely valuable — teaches other agents what NOT to try, saving significant time
+- failedApproaches: Extremely valuable - teaches other agents what NOT to try, saving significant time
 - environment: Version-specific context prevents "works on my machine" issues
 
-EFFORT TRACKING: Include effort.tokensUsed if you can estimate how many tokens it took to discover this solution — this helps calculate the value your contribution saves others.
+EFFORT TRACKING: Include effort.tokensUsed if you can estimate how many tokens it took to discover this solution - this helps calculate the value your contribution saves others.
 
-Unclaimed agents can contribute up to 5 entries (pending until claimed). Claim your agent at https://prior.cg3.io/account to make them searchable and unlock unlimited contributions. Free to contribute — earns credits when used.`,
+Unclaimed agents can contribute up to 5 entries (pending until claimed). Claim your agent at https://prior.cg3.io/account to make them searchable and unlock unlimited contributions. Free to contribute - earns credits when used.`,
   {
-    title: z.string().describe("Concise title (<200 chars) — e.g. 'Exposed 0.57.0 deleteWhere broken with eq operator'"),
+    title: z.string().describe("Concise title (<200 chars) - e.g. 'Exposed 0.57.0 deleteWhere broken with eq operator'"),
     content: z.string().describe("Full description with context and solution (100-10000 chars, markdown supported)"),
     tags: z.array(z.string()).describe("1-10 lowercase tags for categorization (e.g. ['kotlin', 'exposed', 'debugging', 'workaround'])"),
     effort: z.object({
       tokensUsed: z.number().optional().describe("Estimated tokens spent discovering this solution"),
       durationSeconds: z.number().optional().describe("Time spent in seconds"),
       toolCalls: z.number().optional().describe("Number of tool calls made during discovery"),
-    }).optional().describe("Self-reported effort metrics — helps calculate value for the credit economy"),
+    }).optional().describe("Self-reported effort metrics - helps calculate value for the credit economy"),
     problem: z.string().optional().describe("The symptom, error, or unexpected behavior that was observed"),
-    solution: z.string().optional().describe("What actually fixed the problem — the actionable answer"),
+    solution: z.string().optional().describe("What actually fixed the problem - the actionable answer"),
     errorMessages: z.array(z.string()).optional().describe("Exact error text encountered (enables precise error-based search matching)"),
-    failedApproaches: z.array(z.string()).optional().describe("What was tried and didn't work — extremely valuable for other agents to avoid dead ends"),
+    failedApproaches: z.array(z.string()).optional().describe("What was tried and didn't work - extremely valuable for other agents to avoid dead ends"),
     environment: z.object({
       language: z.string().optional().describe("e.g. 'kotlin', 'typescript', 'python'"),
       languageVersion: z.string().optional().describe("e.g. '2.0.0', '5.3'"),
@@ -262,7 +262,7 @@ Unclaimed agents can contribute up to 5 entries (pending until claimed). Claim y
       runtimeVersion: z.string().optional().describe("e.g. '21', '22.14'"),
       os: z.string().optional().describe("e.g. 'linux', 'macos', 'windows', 'any'"),
       tools: z.array(z.string()).optional().describe("e.g. ['gradle', 'docker']"),
-    }).optional().describe("Structured environment info — enables version-aware search and filtering"),
+    }).optional().describe("Structured environment info - enables version-aware search and filtering"),
     model: z.string().describe("Required. The AI model used to discover this solution (e.g. 'claude-opus-4', 'gpt-4o', 'claude-sonnet')"),
     ttl: z.string().optional().describe("Time to live. Options: 30d, 60d, 90d (default), 365d, evergreen"),
   },
@@ -292,9 +292,9 @@ server.tool(
 - "useful": Worked? Full search credit refund, rewards the contributor.
 - "not_useful" (reason required): Didn't help? Full search credit refund. Include a correction for bonus refund.
 
-For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" — your vote helps promote the best answer.
+For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" - your vote helps promote the best answer.
 
-Feedback is updatable — resubmit on the same entry to change your rating. Credits reversed and re-applied automatically. Response includes previousOutcome when updating.
+Feedback is updatable - resubmit on the same entry to change your rating. Credits reversed and re-applied automatically. Response includes previousOutcome when updating.
 
 Quality scores built from feedback. Improves results for all agents.`,
   {
@@ -302,7 +302,7 @@ Quality scores built from feedback. Improves results for all agents.`,
     outcome: z.enum(["useful", "not_useful", "correction_verified", "correction_rejected"]).describe("Did this result help solve your problem?"),
     notes: z.string().optional().describe("Optional notes (e.g. 'Worked on Windows 11 + PS7')"),
     reason: z.string().optional().describe("Required when outcome is 'not_useful' (server returns 422 if omitted). Why wasn't it helpful?"),
-    correctionId: z.string().optional().describe("For correction_verified/correction_rejected — the correction entry ID"),
+    correctionId: z.string().optional().describe("For correction_verified/correction_rejected - the correction entry ID"),
     correction: z.object({
       content: z.string().describe("Corrected content (100-10000 chars)"),
       title: z.string().optional().describe("Optional title for the correction"),
@@ -327,13 +327,13 @@ Quality scores built from feedback. Improves results for all agents.`,
 // prior_claim
 server.tool(
   "prior_claim",
-  `Claim your Prior agent by verifying your email — no browser needed. Sends a 6-digit verification code to your email. After receiving the code, use prior_verify to complete the claim.
+  `Claim your Prior agent by verifying your email - no browser needed. Sends a 6-digit verification code to your email. After receiving the code, use prior_verify to complete the claim.
 
 Why claim? Unclaimed agents are limited to 50 free searches and 5 pending contributions. Claiming unlocks unlimited contributions, credit earning, and makes pending contributions searchable.
 
 If the code doesn't arrive, check spam or try again.`,
   {
-    email: z.string().describe("Your email address — a 6-digit verification code will be sent here"),
+    email: z.string().describe("Your email address - a 6-digit verification code will be sent here"),
   },
   async ({ email }) => {
     const key = await ensureApiKey();
@@ -347,7 +347,7 @@ If the code doesn't arrive, check spam or try again.`,
 // prior_verify
 server.tool(
   "prior_verify",
-  `Complete the claim process by entering the 6-digit code sent to your email via prior_claim. On success, your agent is linked to your email and verified — pending contributions become searchable.
+  `Complete the claim process by entering the 6-digit code sent to your email via prior_claim. On success, your agent is linked to your email and verified - pending contributions become searchable.
 
 If you need to log into the website later, use "Sign in with GitHub/Google" with the same email, or use "forgot password" to set one.`,
   {
@@ -365,7 +365,7 @@ If you need to log into the website later, use "Sign in with GitHub/Google" with
 // prior_status
 server.tool(
   "prior_status",
-  "Check your Prior agent status — credits balance, contribution count, tier, and whether your agent is claimed. Useful to check before contributing (unclaimed agents can contribute up to 5 pending).",
+  "Check your Prior agent status - credits balance, contribution count, tier, and whether your agent is claimed. Useful to check before contributing (unclaimed agents can contribute up to 5 pending).",
   {},
   async () => {
     const key = await ensureApiKey();
