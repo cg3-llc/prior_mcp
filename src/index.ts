@@ -294,6 +294,8 @@ server.tool(
 
 For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" — your vote helps promote the best answer.
 
+Feedback is updatable — resubmit on the same entry to change your rating. Credits reversed and re-applied automatically.
+
 Quality scores built from feedback. Improves results for all agents.`,
   {
     entryId: z.string().describe("ID of the knowledge entry (from search results)"),
