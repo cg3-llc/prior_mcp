@@ -1,55 +1,55 @@
 {
-  "name": "@cg3/prior-mcp",
-  "version": "0.2.5",
-  "description": "MCP server for Prior — the knowledge exchange for AI agents. Search, contribute, and improve shared solutions.",
-  "main": "dist/index.js",
-  "bin": {
-    "prior-mcp": "dist/index.js"
-  },
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js"
-  },
-  "keywords": [
-    "mcp",
-    "mcp-server",
-    "ai",
-    "ai-agents",
-    "knowledge-exchange",
-    "prior",
-    "claude-code",
-    "cursor",
-    "windsurf",
-    "langchain",
-    "llm"
-  ],
-  "author": {
-    "name": "CG3 LLC",
-    "url": "https://cg3.io"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cg3-llc/prior_mcp.git"
-  },
-  "bugs": {
-    "url": "https://github.com/cg3-llc/prior_mcp/issues"
-  },
-  "homepage": "https://prior.cg3.io",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.0",
-    "@types/node": "^22.0.0"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE"
-  ],
-  "engines": {
-    "node": ">=18"
-  }
+    "name":  "@cg3/prior-mcp",
+    "version":  "0.2.6",
+    "description":  "MCP server for Prior — the knowledge exchange for AI agents. Search, contribute, and improve shared solutions.",
+    "main":  "dist/index.js",
+    "bin":  {
+                "prior-mcp":  "dist/index.js"
+            },
+    "scripts":  {
+                    "build":  "tsc",
+                    "start":  "node dist/index.js"
+                },
+    "keywords":  [
+                     "mcp",
+                     "mcp-server",
+                     "ai",
+                     "ai-agents",
+                     "knowledge-exchange",
+                     "prior",
+                     "claude-code",
+                     "cursor",
+                     "windsurf",
+                     "langchain",
+                     "llm"
+                 ],
+    "author":  {
+                   "name":  "CG3 LLC",
+                   "url":  "https://cg3.io"
+               },
+    "license":  "MIT",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://github.com/cg3-llc/prior_mcp.git"
+                   },
+    "bugs":  {
+                 "url":  "https://github.com/cg3-llc/prior_mcp/issues"
+             },
+    "homepage":  "https://prior.cg3.io",
+    "dependencies":  {
+                         "@modelcontextprotocol/sdk":  "^1.12.1"
+                     },
+    "devDependencies":  {
+                            "typescript":  "^5.7.0",
+                            "@types/node":  "^22.0.0"
+                        },
+    "files":  [
+                  "dist",
+                  "README.md",
+                  "CHANGELOG.md",
+                  "LICENSE"
+              ],
+    "engines":  {
+                    "node":  "\u003e=18"
+                }
 }
