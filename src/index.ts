@@ -10,7 +10,7 @@ import * as path from "path";
 import * as os from "os";
 
 const API_URL = process.env.PRIOR_API_URL || "https://api.cg3.io";
-const CONFIG_PATH = path.join(os.homedir(), ".prior", "config.json");
+export const CONFIG_PATH = path.join(os.homedir(), ".prior", "config.json");
 
 // In-memory state
 let apiKey: string | undefined = process.env.PRIOR_API_KEY;
@@ -21,7 +21,7 @@ interface PriorConfig {
   agentId: string;
 }
 
-function loadConfig(): PriorConfig | null {
+export function loadConfig(): PriorConfig | null {
   try {
     const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
     return JSON.parse(raw) as PriorConfig;
@@ -30,7 +30,7 @@ function loadConfig(): PriorConfig | null {
   }
 }
 
-function saveConfig(config: PriorConfig): void {
+export function saveConfig(config: PriorConfig): void {
   fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
 }
@@ -44,13 +44,8 @@ if (!apiKey) {
   }
 }
 
-function detectHost(): string {
-  if (process.env.CURSOR_TRACE_ID || process.env.CURSOR_SESSION) return "cursor";
-  if (process.env.VSCODE_PID || process.env.VSCODE_CWD) return "vscode";
-  if (process.env.WINDSURF_SESSION) return "windsurf";
-  if (process.env.OPENCLAW_SESSION) return "openclaw";
-  return "unknown";
-}
+// Import utility functions
+import { detectHost, formatResults } from "./utils.js";
 
 async function ensureApiKey(): Promise<string | null> {
   if (apiKey) return apiKey;
@@ -90,7 +85,7 @@ async function apiRequest(method: string, path: string, body?: unknown, key?: st
     headers: {
       ...(k ? { "Authorization": `Bearer ${k}` } : {}),
       "Content-Type": "application/json",
-      "User-Agent": "prior-mcp/0.2.9",
+      "User-Agent": "prior-mcp/0.2.11",
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -107,13 +102,11 @@ async function apiRequest(method: string, path: string, body?: unknown, key?: st
   }
 }
 
-function formatResults(data: unknown): string {
-  return JSON.stringify(data, null, 2);
-}
+// formatResults moved to utils.ts
 
 const server = new McpServer({
   name: "prior",
-  version: "0.2.9",
+  version: "0.2.11",
 });
 
 // prior_register
@@ -172,7 +165,20 @@ PRIVACY: Search queries are logged for rate limiting only, auto-deleted after 90
     if (minQuality !== undefined) body.minQuality = minQuality;
 
     const data = await apiRequest("POST", "/v1/knowledge/search", body);
-    return { content: [{ type: "text" as const, text: formatResults(data) }] };
+    let text = formatResults(data);
+
+    // Append feedback nudge with pre-built tool calls
+    const results = (data as any)?.results || (data as any)?.data?.results || [];
+    if (results.length > 0) {
+      const topId = results[0].id;
+      text += `\n\n---\nYou already paid 1 credit for this search. Get it back — call prior_feedback with ONE of these:\n` +
+        `  worked:       { "entryId": "${topId}", "outcome": "useful" }\n` +
+        `  didn't work:  { "entryId": "${topId}", "outcome": "not_useful", "reason": "describe why" }\n` +
+        `  wrong result: { "entryId": "${topId}", "outcome": "irrelevant" }\n` +
+        `All result IDs: ${results.map((r: any) => r.id).join(", ")}`;
+    }
+
+    return { content: [{ type: "text" as const, text }] };
   }
 );
 
@@ -290,7 +296,8 @@ server.tool(
   `Rate a search result after using it. Refunds your search credit and helps the next agent get better results.
 
 - "useful": Worked? Full search credit refund, rewards the contributor.
-- "not_useful" (reason required): Didn't help? Full search credit refund. Include a correction for bonus refund.
+- "not_useful" (reason required): You tried it and it didn't work? Full search credit refund. Include a correction for bonus refund.
+- "irrelevant": Result doesn't relate to your search? No quality impact, credits refunded. No correction allowed.
 
 For pendingCorrection in results, test both and use "correction_verified" or "correction_rejected" - your vote helps promote the best answer.
 
@@ -299,7 +306,7 @@ Feedback is updatable - resubmit on the same entry to change your rating. Credit
 Quality scores built from feedback. Improves results for all agents.`,
   {
     entryId: z.string().describe("ID of the knowledge entry (from search results)"),
-    outcome: z.enum(["useful", "not_useful", "correction_verified", "correction_rejected"]).describe("Did this result help solve your problem?"),
+    outcome: z.enum(["useful", "not_useful", "irrelevant", "correction_verified", "correction_rejected"]).describe("'useful' = tried it, solved your problem. 'not_useful' = tried it, didn't work. 'irrelevant' = doesn't relate to your search."),
     notes: z.string().optional().describe("Optional notes (e.g. 'Worked on Windows 11 + PS7')"),
     reason: z.string().optional().describe("Required when outcome is 'not_useful' (server returns 422 if omitted). Why wasn't it helpful?"),
     correctionId: z.string().optional().describe("For correction_verified/correction_rejected - the correction entry ID"),
@@ -376,12 +383,19 @@ server.tool(
   }
 );
 
-async function main() {
+export async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
 
-main().catch((err) => {
-  console.error("Fatal:", err);
-  process.exit(1);
-});
+export function createServer() {
+  return server;
+}
+
+// Only start the server when run directly, not when imported for testing
+if (require.main === module || !process.env.MCP_TEST_MODE) {
+  main().catch((err) => {
+    console.error("Fatal:", err);
+    process.exit(1);
+  });
+}
