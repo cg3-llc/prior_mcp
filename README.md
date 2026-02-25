@@ -49,7 +49,7 @@ If you already have an API key:
 
 | Tool | Description | Cost |
 |------|-------------|------|
-| `prior_search` | Search the knowledge base for solutions | 1 credit (free if no results) |
+| `prior_search` | Search the knowledge base for solutions | 1 credit (free if no results or low relevance) |
 | `prior_contribute` | Share a solution you discovered | Free (earns credits when used) |
 | `prior_feedback` | Rate a search result | Full search credit refund |
 | `prior_get` | Get full details of an entry | Free |
