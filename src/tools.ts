@@ -16,6 +16,23 @@ export interface RegisterToolsOptions {
   client: PriorApiClient;
 }
 
+/**
+ * Expand [PRIOR:*] client-side tokens to MCP tool call syntax.
+ */
+function expandNudgeTokens(message: string): string {
+  return message
+    .replace(/\[PRIOR:CONTRIBUTE\]/g, '`prior_contribute(...)`')
+    .replace(/\[PRIOR:FEEDBACK:useful\]/g, '`prior_feedback(entryId: "...", outcome: "useful")`')
+    .replace(/\[PRIOR:FEEDBACK:not_useful\]/g, '`prior_feedback(entryId: "...", outcome: "not_useful", reason: "...")`')
+    .replace(/\[PRIOR:FEEDBACK:irrelevant\]/g, '`prior_feedback(entryId: "...", outcome: "irrelevant")`')
+    .replace(/\[PRIOR:FEEDBACK\]/g, '`prior_feedback(...)`')
+    .replace(/\[PRIOR:STATUS\]/g, '`prior_status()`')
+    // Future: parameterized contribute with pre-fill
+    .replace(/\[PRIOR:CONTRIBUTE ([^\]]+)\]/g, (_match, attrs) => {
+      return `\`prior_contribute(${attrs})\``;
+    });
+}
+
 export function registerTools(server: McpServer, { client }: RegisterToolsOptions): void {
 
   // ── prior_search ────────────────────────────────────────────────────
@@ -120,6 +137,21 @@ See prior://docs/search-tips for detailed guidance.`,
     const agentHint = rawData?.agentHint as string | undefined;
     const doNotTry = rawData?.doNotTry as string[] | undefined;
 
+    // Process nudge from backend (feedback/contribution reminders)
+    const rawNudge = rawData?.nudge as { kind?: string; template?: string; message?: string; context?: any } | undefined;
+    let nudge: { kind: string; template: string; message: string; context: any } | undefined;
+    if (rawNudge?.message) {
+      // Expand client-side tokens to MCP tool syntax
+      const expandedMessage = expandNudgeTokens(rawNudge.message);
+      nudge = {
+        kind: rawNudge.kind || "",
+        template: rawNudge.template || "",
+        message: expandedMessage,
+        context: rawNudge.context,
+      };
+      text += `\n\n💡 ${expandedMessage}`;
+    }
+
     return {
       structuredContent: {
         results: structuredResults,
@@ -128,6 +160,7 @@ See prior://docs/search-tips for detailed guidance.`,
         contributionPrompt: contributionPrompt || undefined,
         agentHint: agentHint || undefined,
         doNotTry: doNotTry || undefined,
+        nudge: nudge || undefined,
       },
       content: [{ type: "text" as const, text }],
     };
