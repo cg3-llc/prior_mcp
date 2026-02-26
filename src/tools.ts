@@ -3,7 +3,7 @@
  * 
  * Usage:
  *   import { registerTools } from "@cg3/prior-mcp/tools";
- *   const server = new McpServer({ name: "prior", version: "0.3.0" });
+ *   const server = new McpServer({ name: "prior", version: "0.3.1" });
  *   registerTools(server, { client });
  */
 

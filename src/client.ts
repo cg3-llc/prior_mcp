@@ -12,7 +12,7 @@ import * as os from "os";
 import { detectHost } from "./utils.js";
 
 export const CONFIG_PATH = path.join(os.homedir(), ".prior", "config.json");
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 
 export interface PriorConfig {
   apiKey: string;
