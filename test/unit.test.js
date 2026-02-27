@@ -7,6 +7,8 @@ const {
   detectHost
 } = require('../dist/utils.js');
 
+const { expandNudgeTokens } = require('../dist/tools.js');
+
 describe('Unit Tests - Pure Functions', () => {
   
   describe('formatResults', () => {
@@ -263,6 +265,56 @@ describe('Unit Tests - Pure Functions', () => {
       
       process.env.CURSOR_TRACE_ID = 'false';
       assert.strictEqual(detectHost(), 'cursor'); // 'false' is truthy as string
+    });
+  });
+
+  describe('expandNudgeTokens', () => {
+    test('should expand [PRIOR:CONTRIBUTE] to prior_contribute tool call', () => {
+      const result = expandNudgeTokens('If you solved it, [PRIOR:CONTRIBUTE] your fix.');
+      assert.strictEqual(result, 'If you solved it, `prior_contribute(...)` your fix.');
+    });
+
+    test('should expand [PRIOR:FEEDBACK] to prior_feedback tool call', () => {
+      const result = expandNudgeTokens('Did it help? [PRIOR:FEEDBACK] takes seconds.');
+      assert.strictEqual(result, 'Did it help? `prior_feedback(...)` takes seconds.');
+    });
+
+    test('should expand typed feedback tokens', () => {
+      const useful = expandNudgeTokens('[PRIOR:FEEDBACK:useful]');
+      assert.strictEqual(useful, '`prior_feedback(entryId: "...", outcome: "useful")`');
+
+      const notUseful = expandNudgeTokens('[PRIOR:FEEDBACK:not_useful]');
+      assert.strictEqual(notUseful, '`prior_feedback(entryId: "...", outcome: "not_useful", reason: "...")`');
+
+      const irrelevant = expandNudgeTokens('[PRIOR:FEEDBACK:irrelevant]');
+      assert.strictEqual(irrelevant, '`prior_feedback(entryId: "...", outcome: "irrelevant")`');
+    });
+
+    test('should expand [PRIOR:STATUS] to prior_status tool call', () => {
+      const result = expandNudgeTokens('Check your balance: [PRIOR:STATUS]');
+      assert.strictEqual(result, 'Check your balance: `prior_status()`');
+    });
+
+    test('should expand parameterized contribute with pre-fill', () => {
+      const result = expandNudgeTokens('[PRIOR:CONTRIBUTE problem="null pointer" tags="kotlin"]');
+      assert.strictEqual(result, '`prior_contribute(problem="null pointer" tags="kotlin")`');
+    });
+
+    test('should expand multiple tokens in one message', () => {
+      const msg = 'Still working on this? [PRIOR:CONTRIBUTE] saves others. If a result helped, [PRIOR:FEEDBACK].';
+      const result = expandNudgeTokens(msg);
+      assert.ok(result.includes('`prior_contribute(...)`'));
+      assert.ok(result.includes('`prior_feedback(...)`'));
+      assert.ok(!result.includes('[PRIOR:'));
+    });
+
+    test('should leave message unchanged when no tokens present', () => {
+      const msg = 'This is a plain message with no tokens.';
+      assert.strictEqual(expandNudgeTokens(msg), msg);
+    });
+
+    test('should handle empty string', () => {
+      assert.strictEqual(expandNudgeTokens(''), '');
     });
   });
 });

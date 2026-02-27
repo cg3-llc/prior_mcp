@@ -19,7 +19,7 @@ export interface RegisterToolsOptions {
 /**
  * Expand [PRIOR:*] client-side tokens to MCP tool call syntax.
  */
-function expandNudgeTokens(message: string): string {
+export function expandNudgeTokens(message: string): string {
   return message
     .replace(/\[PRIOR:CONTRIBUTE\]/g, '`prior_contribute(...)`')
     .replace(/\[PRIOR:FEEDBACK:useful\]/g, '`prior_feedback(entryId: "...", outcome: "useful")`')
