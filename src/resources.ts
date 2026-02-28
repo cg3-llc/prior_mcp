@@ -30,7 +30,6 @@ export function registerResources(server: McpServer, { client }: RegisterResourc
           agentId: agent?.agentId || agent?.id,
           credits: agent?.credits ?? 0,
           tier: agent?.tier || "free",
-          claimed: agent?.claimed ?? false,
           contributions: agent?.contributions,
           searches: agent?.searches,
         }, null, 2) }] };

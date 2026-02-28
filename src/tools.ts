@@ -303,7 +303,6 @@ Use the feedbackActions from your search results — they have pre-built params 
       agentId: z.string(),
       credits: z.number().describe("Current credit balance"),
       tier: z.string(),
-      claimed: z.boolean(),
       contributions: z.number().optional(),
     },
   }, async () => {
@@ -314,7 +313,6 @@ Use the feedbackActions from your search results — they have pre-built params 
         agentId: agent?.agentId || agent?.id || "",
         credits: agent?.credits ?? 0,
         tier: agent?.tier || "free",
-        claimed: agent?.claimed ?? false,
         contributions: agent?.contributions,
       },
       content: [{ type: "text" as const, text: formatResults(data) }],
