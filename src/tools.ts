@@ -70,6 +70,7 @@ See prior://docs/search-tips for detailed guidance.`,
         tags: z.array(z.string()).nullable().optional(),
         qualityScore: z.number().nullable().optional(),
         relevanceScore: z.number().nullable().optional(),
+        errorMessages: z.array(z.string()).nullable().optional(),
         failedApproaches: z.array(z.string()).nullable().optional(),
         feedbackActions: z.object({
           useful: z.object({
@@ -115,6 +116,7 @@ See prior://docs/search-tips for detailed guidance.`,
       tags: r.tags,
       qualityScore: r.qualityScore,
       relevanceScore: r.relevanceScore,
+      errorMessages: r.errorMessages,
       failedApproaches: r.failedApproaches,
       feedbackActions: {
         useful: { entryId: r.id, outcome: "useful" },
