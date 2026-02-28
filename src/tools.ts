@@ -170,7 +170,7 @@ See prior://docs/search-tips for detailed guidance.`,
 
     return {
       structuredContent: {
-        results: structuredResults,
+        results: structuredResults || [],
         searchId,
         creditsUsed: data?.creditsUsed || data?.data?.creditsUsed || 1,
         contributionPrompt: contributionPrompt || undefined,
