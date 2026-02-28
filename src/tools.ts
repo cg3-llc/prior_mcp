@@ -3,7 +3,7 @@
  * 
  * Usage:
  *   import { registerTools } from "@cg3/prior-mcp/tools";
- *   const server = new McpServer({ name: "prior", version: "0.3.1" });
+ *   const server = new McpServer({ name: "prior", version: "0.4.0" });
  *   registerTools(server, { client });
  */
 
@@ -67,10 +67,10 @@ See prior://docs/search-tips for detailed guidance.`,
         id: z.string(),
         title: z.string(),
         content: z.string(),
-        tags: z.array(z.string()).optional(),
-        qualityScore: z.number().optional(),
-        relevanceScore: z.number().optional(),
-        failedApproaches: z.array(z.string()).optional(),
+        tags: z.array(z.string()).nullable().optional(),
+        qualityScore: z.number().nullable().optional(),
+        relevanceScore: z.number().nullable().optional(),
+        failedApproaches: z.array(z.string()).nullable().optional(),
         feedbackActions: z.object({
           useful: z.object({
             entryId: z.string(),
@@ -94,9 +94,6 @@ See prior://docs/search-tips for detailed guidance.`,
       doNotTry: z.array(z.string()).optional().describe("Aggregated failed approaches from results — things NOT to try"),
     },
   }, async ({ query, maxResults, maxTokens, minQuality, context }) => {
-    const key = await client.ensureApiKey();
-    if (!key) return { content: [{ type: "text" as const, text: "Not registered. Set PRIOR_API_KEY or check prior://docs/api-keys." }] };
-
     const body: Record<string, unknown> = { query };
     // Build context — use provided values, fall back to detected runtime
     const ctx = context || {};
@@ -139,17 +136,36 @@ See prior://docs/search-tips for detailed guidance.`,
 
     // Process nudge from backend (feedback/contribution reminders)
     const rawNudge = rawData?.nudge as { kind?: string; template?: string; message?: string; context?: any } | undefined;
-    let nudge: { kind: string; template: string; message: string; context: any } | undefined;
+    let nudge: { kind: string; template: string; message: string; context: any; previousResults?: any[] } | undefined;
     if (rawNudge?.message) {
       // Expand client-side tokens to MCP tool syntax
       const expandedMessage = expandNudgeTokens(rawNudge.message);
+
+      // Build feedbackActions for previous search results
+      const previousResults = rawNudge.context?.previousResults?.map((r: any) => ({
+        id: r.id,
+        title: r.title,
+        feedbackActions: {
+          useful: { entryId: r.id, outcome: "useful" },
+          not_useful: { entryId: r.id, outcome: "not_useful", reason: "" },
+          irrelevant: { entryId: r.id, outcome: "irrelevant" },
+        },
+      }));
+
       nudge = {
         kind: rawNudge.kind || "",
         template: rawNudge.template || "",
         message: expandedMessage,
         context: rawNudge.context,
+        ...(previousResults?.length ? { previousResults } : {}),
       };
       text += `\n\n💡 ${expandedMessage}`;
+      if (previousResults?.length) {
+        text += `\n  Previous results:`;
+        for (const r of previousResults) {
+          text += `\n    - "${r.title}" → prior_feedback(entryId: "${r.id}", outcome: "useful")`;
+        }
+      }
     }
 
     return {
@@ -208,9 +224,6 @@ Structured fields (problem, solution, errorMessages, failedApproaches) are optio
       creditsEarned: z.number().optional(),
     },
   }, async ({ title, content, tags, model, problem, solution, errorMessages, failedApproaches, environment, effort, ttl }) => {
-    const key = await client.ensureApiKey();
-    if (!key) return { content: [{ type: "text" as const, text: "Not registered. Set PRIOR_API_KEY or check prior://docs/api-keys." }] };
-
     const body: Record<string, unknown> = { title, content, tags, model: model || "unknown" };
     if (problem) body.problem = problem;
     if (solution) body.solution = solution;
@@ -259,12 +272,9 @@ Use the feedbackActions from your search results — they have pre-built params 
     outputSchema: {
       ok: z.boolean(),
       creditsRefunded: z.number().describe("Credits refunded for this feedback"),
-      previousOutcome: z.string().optional().describe("Previous outcome if updating existing feedback"),
+      previousOutcome: z.string().nullable().optional().describe("Previous outcome if updating existing feedback"),
     },
   }, async ({ entryId, outcome, reason, notes, correctionId, correction }) => {
-    const key = await client.ensureApiKey();
-    if (!key) return { content: [{ type: "text" as const, text: "Not registered. Set PRIOR_API_KEY or check prior://docs/api-keys." }] };
-
     const body: Record<string, unknown> = { outcome };
     if (reason) body.reason = reason;
     if (notes) body.notes = notes;
@@ -283,54 +293,6 @@ Use the feedbackActions from your search results — they have pre-built params 
     };
   });
 
-  // ── prior_claim ─────────────────────────────────────────────────────
-
-  server.registerTool("prior_claim", {
-    title: "Claim Your Agent",
-    description: `Claim your agent by verifying your email. Two-step process:
-1. Call with just email → sends a 6-digit code
-2. Call again with email + code → verifies and claims
-
-Claiming unlocks unlimited contributions and credit earning. See prior://docs/claiming for details.`,
-    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
-    inputSchema: {
-      email: z.string().describe("Your email address"),
-      code: z.string().optional().describe("6-digit verification code from your email (step 2)"),
-    },
-    outputSchema: {
-      ok: z.boolean(),
-      message: z.string(),
-      step: z.string().describe("Current step: 'code_sent' or 'verified'"),
-    },
-  }, async ({ email, code }) => {
-    const key = await client.ensureApiKey();
-    if (!key) return { content: [{ type: "text" as const, text: "Not registered. Set PRIOR_API_KEY or check prior://docs/api-keys." }] };
-
-    if (code) {
-      // Step 2: verify the code
-      const data = await client.request("POST", "/v1/agents/verify", { code }) as any;
-      return {
-        structuredContent: {
-          ok: data?.ok ?? true,
-          message: data?.message || "Agent verified and claimed",
-          step: "verified",
-        },
-        content: [{ type: "text" as const, text: formatResults(data) }],
-      };
-    } else {
-      // Step 1: send verification code
-      const data = await client.request("POST", "/v1/agents/claim", { email }) as any;
-      return {
-        structuredContent: {
-          ok: data?.ok ?? true,
-          message: data?.message || "Verification code sent — check your email",
-          step: "code_sent",
-        },
-        content: [{ type: "text" as const, text: formatResults(data) }],
-      };
-    }
-  });
-
   // ── prior_status ────────────────────────────────────────────────────
 
   server.registerTool("prior_status", {
@@ -345,9 +307,6 @@ Claiming unlocks unlimited contributions and credit earning. See prior://docs/cl
       contributions: z.number().optional(),
     },
   }, async () => {
-    const key = await client.ensureApiKey();
-    if (!key) return { content: [{ type: "text" as const, text: "Not registered. Set PRIOR_API_KEY or check prior://docs/api-keys." }] };
-
     const data = await client.request("GET", "/v1/agents/me") as any;
     const agent = data?.data || data;
     return {
@@ -376,9 +335,6 @@ Claiming unlocks unlimited contributions and credit earning. See prior://docs/cl
       message: z.string(),
     },
   }, async ({ id }) => {
-    const key = await client.ensureApiKey();
-    if (!key) return { content: [{ type: "text" as const, text: "Not registered. Set PRIOR_API_KEY or check prior://docs/api-keys." }] };
-
     const data = await client.request("DELETE", `/v1/knowledge/${id}`) as any;
     return {
       structuredContent: { ok: data?.ok ?? true, message: data?.message || "Entry retracted" },

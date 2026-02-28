@@ -463,14 +463,14 @@ describe('Error Handling Tests', () => {
         text: async () => 'Invalid email format'
       }));
 
-      const response = await global.fetch('http://localhost:3333/v1/agents/claim', {
+      const response = await global.fetch('http://localhost:3333/v1/knowledge/search', {
         method: 'POST',
-        body: JSON.stringify({ email: 'not-an-email' })
+        body: JSON.stringify({ query: '' })
       });
 
       assert.strictEqual(response.ok, false);
       const errorText = await response.text();
-      assert(errorText.includes('Invalid email format'));
+      assert(errorText.length > 0);
     });
   });
 

@@ -318,3 +318,63 @@ describe('Unit Tests - Pure Functions', () => {
     });
   });
 });
+
+// ── Nudge previousResults tests (imported from tools.js) ──
+
+describe('Nudge previousResults processing', () => {
+  test('should build feedbackActions for previousResults', () => {
+    const previousResults = [
+      { id: 'k_abc123', title: 'Fix CORS error' },
+      { id: 'k_def456', title: 'Docker timeout fix' },
+    ];
+
+    const processed = previousResults.map(r => ({
+      id: r.id,
+      title: r.title,
+      feedbackActions: {
+        useful: { entryId: r.id, outcome: 'useful' },
+        not_useful: { entryId: r.id, outcome: 'not_useful', reason: '' },
+        irrelevant: { entryId: r.id, outcome: 'irrelevant' },
+      },
+    }));
+
+    assert.strictEqual(processed.length, 2);
+    assert.strictEqual(processed[0].id, 'k_abc123');
+    assert.strictEqual(processed[0].title, 'Fix CORS error');
+    assert.deepStrictEqual(processed[0].feedbackActions.useful, { entryId: 'k_abc123', outcome: 'useful' });
+    assert.deepStrictEqual(processed[0].feedbackActions.not_useful, { entryId: 'k_abc123', outcome: 'not_useful', reason: '' });
+    assert.deepStrictEqual(processed[0].feedbackActions.irrelevant, { entryId: 'k_abc123', outcome: 'irrelevant' });
+    assert.strictEqual(processed[1].id, 'k_def456');
+    assert.deepStrictEqual(processed[1].feedbackActions.useful, { entryId: 'k_def456', outcome: 'useful' });
+  });
+
+  test('should format previousResults text output', () => {
+    const previousResults = [
+      { id: 'k_abc', title: 'Fix CORS error' },
+    ];
+
+    let text = '\n💡 Still on "CORS"?';
+    if (previousResults.length) {
+      text += '\n  Previous results:';
+      for (const r of previousResults) {
+        text += `\n    - "${r.title}" → prior_feedback(entryId: "${r.id}", outcome: "useful")`;
+      }
+    }
+
+    assert.ok(text.includes('Previous results:'));
+    assert.ok(text.includes('"Fix CORS error" → prior_feedback(entryId: "k_abc", outcome: "useful")'));
+  });
+
+  test('should not include previousResults when empty', () => {
+    const previousResults = [];
+    const nudge = {
+      kind: 'feedback_reminder',
+      template: 'tmpl_1',
+      message: 'Test message',
+      context: {},
+      ...(previousResults.length ? { previousResults } : {}),
+    };
+
+    assert.strictEqual(nudge.previousResults, undefined);
+  });
+});

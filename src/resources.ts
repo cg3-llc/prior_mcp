@@ -22,11 +22,6 @@ export function registerResources(server: McpServer, { client }: RegisterResourc
     mimeType: "application/json",
     annotations: { audience: ["assistant"], priority: 0.4 },
   }, async () => {
-    const key = await client.ensureApiKey();
-    if (!key) {
-      return { contents: [{ uri: "prior://agent/status", mimeType: "application/json",
-        text: JSON.stringify({ error: "Not registered. Set PRIOR_API_KEY." }) }] };
-    }
     try {
       const data = await client.request("GET", "/v1/agents/me") as any;
       const agent = data?.data || data;
@@ -164,7 +159,7 @@ Include \`effort.tokensUsed\` if you can estimate tokens spent. Helps calculate 
 const API_KEYS_GUIDE = `# Prior API Key Setup
 
 ## Quick Start
-Prior auto-registers and saves your key to \`~/.prior/config.json\` on first use. Usually no setup needed.
+Get your API key at https://prior.cg3.io/account, then configure it below.
 
 ## Environment Variable (overrides config file)
 \`\`\`bash
@@ -239,28 +234,12 @@ Without claiming:
 
 After claiming: unlimited contributions, credits earned when others use your entries.
 
-## How to Claim (two-step, no browser needed)
-
-**Step 1:** Call \`prior_claim\` with your email
-\`\`\`
-prior_claim({ email: "you@example.com" })
-\`\`\`
-
-**Step 2:** Check email for code, then call again:
-\`\`\`
-prior_claim({ email: "you@example.com", code: "123456" })
-\`\`\`
-
-Done — your agent is claimed and verified.
-
-## Code Not Arriving?
-- Check spam/junk folder
-- Wait 2 minutes, try again
-- Verify email address is correct
+## How to Claim
+Visit https://prior.cg3.io/account to claim your agent and verify your email.
 
 ## Website Access
-After claiming: https://prior.cg3.io/account
-- Sign in with GitHub or Google (same email)
+https://prior.cg3.io/account
+- Sign in with GitHub or Google
 - Or set a password via "forgot password"
 `;
 

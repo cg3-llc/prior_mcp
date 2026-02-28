@@ -22,7 +22,7 @@ const client = new PriorApiClient();
 
 const server = new McpServer({
   name: "prior",
-  version: "0.3.1",
+  version: "0.4.0",
 });
 
 registerTools(server, { client });

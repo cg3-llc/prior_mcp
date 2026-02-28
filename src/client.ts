@@ -1,18 +1,16 @@
 /**
  * Prior API client — shared between local MCP (stdio) and remote MCP server.
- * 
- * Handles API key management, auto-registration, and HTTP requests.
- * For local use: persists API key to ~/.prior/config.json
- * For remote use: caller manages API key per-session (no file persistence)
+ *
+ * Requires an API key via PRIOR_API_KEY env var or ~/.prior/config.json.
+ * Get your key at https://prior.cg3.io/account
  */
 
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { detectHost } from "./utils.js";
 
 export const CONFIG_PATH = path.join(os.homedir(), ".prior", "config.json");
-const VERSION = "0.3.1";
+const VERSION = "0.4.0";
 
 export interface PriorConfig {
   apiKey: string;
@@ -54,6 +52,15 @@ export class PriorApiClient {
         this._agentId = config.agentId;
       }
     }
+
+    // Require an API key — no more auto-registration
+    if (!this._apiKey) {
+      throw new Error(
+        "No Prior API key configured. " +
+        "Get your key at https://prior.cg3.io/account and set the PRIOR_API_KEY environment variable, " +
+        "or add it to ~/.prior/config.json. See prior://docs/api-keys for setup instructions."
+      );
+    }
   }
 
   get apiKey(): string | undefined { return this._apiKey; }
@@ -71,49 +78,6 @@ export class PriorApiClient {
   saveConfig(config: PriorConfig): void {
     fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-  }
-
-  async ensureApiKey(): Promise<string | null> {
-    if (this._apiKey) return this._apiKey;
-
-    // Try config file again (might have been written by another process)
-    if (this.persistConfig) {
-      const config = this.loadConfig();
-      if (config) {
-        this._apiKey = config.apiKey;
-        this._agentId = config.agentId;
-        return this._apiKey;
-      }
-    }
-
-    // Auto-register
-    try {
-      const host = detectHost();
-      const raw = await this.request("POST", "/v1/agents/register", { agentName: "prior-mcp-agent", host }) as Record<string, unknown>;
-      const data = (raw.data || raw) as Record<string, unknown>;
-      const newKey = (data.apiKey || data.api_key || data.key) as string;
-      const newId = (data.agentId || data.agent_id || data.id) as string;
-      if (newKey) {
-        this._apiKey = newKey;
-        this._agentId = newId;
-        if (this.persistConfig) {
-          this.saveConfig({ apiKey: newKey, agentId: newId });
-        }
-        return this._apiKey;
-      }
-    } catch {
-      // Registration failed
-    }
-    return null;
-  }
-
-  /** Clear cached API key and agent ID. Optionally delete config file. */
-  clearAuth(deleteConfig = false): void {
-    this._apiKey = undefined;
-    this._agentId = undefined;
-    if (deleteConfig) {
-      try { fs.unlinkSync(CONFIG_PATH); } catch {}
-    }
   }
 
   async request(method: string, path: string, body?: unknown, key?: string): Promise<unknown> {
