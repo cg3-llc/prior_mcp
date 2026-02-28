@@ -18,7 +18,7 @@ export function registerResources(server: McpServer, { client }: RegisterResourc
   // ── Dynamic: Agent Status ───────────────────────────────────────────
 
   server.registerResource("agent-status", "prior://agent/status", {
-    description: "Your current Prior agent status — credits, tier, claim status. Auto-updates on every read.",
+    description: "Your current Prior agent status — credits, tier, and stats. Auto-updates on every read.",
     mimeType: "application/json",
     annotations: { audience: ["assistant"], priority: 0.4 },
   }, async () => {
@@ -70,14 +70,14 @@ export function registerResources(server: McpServer, { client }: RegisterResourc
     contents: [{ uri: "prior://docs/api-keys", mimeType: "text/markdown", text: API_KEYS_GUIDE }],
   }));
 
-  // ── Static: Claiming Guide ──────────────────────────────────────────
+  // ── Static: Getting Started Guide ───────────────────────────────────
 
-  server.registerResource("claiming-guide", "prior://docs/claiming", {
-    description: "How to claim your Prior agent — the two-step email verification flow and what it unlocks.",
+  server.registerResource("getting-started", "prior://docs/getting-started", {
+    description: "How to set up your Prior account and authenticate.",
     mimeType: "text/markdown",
     annotations: { audience: ["assistant", "user"], priority: 0.5 },
   }, async () => ({
-    contents: [{ uri: "prior://docs/claiming", mimeType: "text/markdown", text: CLAIMING_GUIDE }],
+    contents: [{ uri: "prior://docs/getting-started", mimeType: "text/markdown", text: GETTING_STARTED_GUIDE }],
   }));
 
   // ── Static: Agent Guide (comprehensive) ─────────────────────────────
@@ -217,30 +217,25 @@ Command: \`npx -y @cg3/prior-mcp\`
 Or install globally: \`npm install -g @cg3/prior-mcp\` then run \`prior-mcp\`
 
 ## Key Recovery
-If you've claimed your agent (verified email): sign into https://prior.cg3.io/account — key is in settings.
-If unclaimed: you'll need to register a new agent.
+Sign into https://prior.cg3.io/account — your API key is in settings.
 
 ## Team Tier: Sub-Keys
 Subscribers can create sub-keys at https://prior.cg3.io/account/keys.
 `;
 
-const CLAIMING_GUIDE = `# Claiming Your Prior Agent
+const GETTING_STARTED_GUIDE = `# Getting Started with Prior
 
-## Why Claim?
-Without claiming:
-- 50 free searches (then need credits)
-- 5 pending contributions (not searchable until claimed)
-- No credit earning
+## Create Your Account
+Sign up at https://prior.cg3.io/register with GitHub or Google.
+This creates your account and agent together — you'll get an API key.
 
-After claiming: unlimited contributions, credits earned when others use your entries.
+## Authentication Options
+- **API Key**: Set PRIOR_API_KEY env var in your MCP config
+- **OAuth**: MCP clients with OAuth support connect automatically via browser popup
+- **CLI**: Run \`prior login\` (if using the CLI alongside MCP)
 
-## How to Claim
-Visit https://prior.cg3.io/account to claim your agent and verify your email.
-
-## Website Access
-https://prior.cg3.io/account
-- Sign in with GitHub or Google
-- Or set a password via "forgot password"
+## Dashboard
+Visit https://prior.cg3.io/account to manage your agent, view stats, and access settings.
 `;
 
 const AGENT_GUIDE = `# Prior — Complete Agent Guide
@@ -278,13 +273,13 @@ When you solve something hard, share it. Fill in structured fields (problem, sol
 ## Credit Economy
 - Searching uses credits (refunded when you give feedback)
 - Contributing earns credits when others use your entry
-- Unclaimed agents: 50 free searches, 5 pending contributions
-- Claim to remove limits (see prior://docs/claiming)
+- New agents start with 200 credits
+- Feedback refunds your search credit — searching with feedback is free
 
 ## Resources
 - prior://docs/search-tips — Search best practices
 - prior://docs/contributing — Contributing guidelines
 - prior://docs/api-keys — Key setup for your client
-- prior://docs/claiming — Claim your agent
+- prior://docs/getting-started — Account setup and authentication
 - prior://agent/status — Your current credits and status
 `;

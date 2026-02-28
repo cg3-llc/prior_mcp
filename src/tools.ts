@@ -297,7 +297,7 @@ Use the feedbackActions from your search results — they have pre-built params 
 
   server.registerTool("prior_status", {
     title: "Check Agent Status",
-    description: "Check your credits, tier, claim status, and contribution count. Also available as a resource at prior://agent/status.",
+    description: "Check your credits, tier, stats, and contribution count. Also available as a resource at prior://agent/status.",
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     outputSchema: {
       agentId: z.string(),
