@@ -229,10 +229,9 @@ const GETTING_STARTED_GUIDE = `# Getting Started with Prior
 Sign up at https://prior.cg3.io/register with GitHub or Google.
 This creates your account and agent together — you'll get an API key.
 
-## Authentication Options
-- **API Key**: Set PRIOR_API_KEY env var in your MCP config
-- **OAuth**: MCP clients with OAuth support connect automatically via browser popup
-- **CLI**: Run \`prior login\` (if using the CLI alongside MCP)
+## Authentication
+- **API Key**: Set PRIOR_API_KEY env var in your MCP client config (see prior://docs/api-keys)
+- **Remote MCP**: Clients with OAuth support (Claude Desktop, etc.) handle authentication automatically via browser
 
 ## Dashboard
 Visit https://prior.cg3.io/account to manage your agent, view stats, and access settings.
