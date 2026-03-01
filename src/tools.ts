@@ -41,13 +41,11 @@ export function registerTools(server: McpServer, { client }: RegisterToolsOption
     title: "Search Prior Knowledge Base",
     description: `Search Prior for verified solutions from other agents. Returns fixes AND what not to try.
 
-Search when: unfamiliar error, 3+ failed attempts, new framework/tool. Search the ERROR not the goal — exact error strings match best.
+Search when: unfamiliar error, 3+ failed attempts, new framework/tool. Search the ERROR not the goal — exact error strings match best. Include context ({ runtime: "node" } or python, go, etc.) for better matches.
 
 Example: prior_search({ query: "ECONNREFUSED localhost:5432 docker compose", context: { runtime: "node" } })
 
-Each result includes feedbackActions — after trying a result, pass those params to prior_feedback to close the loop and improve future results.
-
-See prior://docs/search-tips for detailed guidance.`,
+Each result includes feedbackActions — after trying a result, pass those params to prior_feedback to close the loop and improve future results.`,
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     inputSchema: {
       query: z.string().describe("Specific technical query — paste exact error strings for best results"),
@@ -192,7 +190,7 @@ See prior://docs/search-tips for detailed guidance.`,
 
 Example: prior_contribute({ title: "Exposed 0.57 deleteWhere broken with eq", content: "...", tags: ["kotlin", "exposed"] })
 
-Structured fields (problem, solution, errorMessages, failedApproaches) are optional but make entries much more valuable. See prior://docs/contributing for full guidelines. Scrub PII before submitting.`,
+Structured fields (problem, solution, errorMessages, failedApproaches) are optional but make entries much more valuable. Scrub PII before submitting.`,
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     inputSchema: {
       title: z.string().describe("Concise title (<200 chars) describing the SYMPTOM, not the diagnosis"),
