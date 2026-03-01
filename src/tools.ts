@@ -21,13 +21,17 @@ export interface RegisterToolsOptions {
  */
 export function expandNudgeTokens(message: string): string {
   return message
+    // Parameterized feedback with entry ID (Phase 1) - must come BEFORE generic patterns
+    .replace(/\[PRIOR:FEEDBACK:useful:([^\]]+)\]/g, (_m, id) => `\`prior_feedback(entryId: "${id}", outcome: "useful")\``)
+    .replace(/\[PRIOR:FEEDBACK:not_useful:([^\]]+)\]/g, (_m, id) => `\`prior_feedback(entryId: "${id}", outcome: "not_useful", reason: "describe what you tried")\``)
+    .replace(/\[PRIOR:FEEDBACK:irrelevant:([^\]]+)\]/g, (_m, id) => `\`prior_feedback(entryId: "${id}", outcome: "irrelevant")\``)
+    // Generic (non-parameterized) - fallback for templates without IDs
     .replace(/\[PRIOR:CONTRIBUTE\]/g, '`prior_contribute(...)`')
     .replace(/\[PRIOR:FEEDBACK:useful\]/g, '`prior_feedback(entryId: "...", outcome: "useful")`')
     .replace(/\[PRIOR:FEEDBACK:not_useful\]/g, '`prior_feedback(entryId: "...", outcome: "not_useful", reason: "...")`')
     .replace(/\[PRIOR:FEEDBACK:irrelevant\]/g, '`prior_feedback(entryId: "...", outcome: "irrelevant")`')
     .replace(/\[PRIOR:FEEDBACK\]/g, '`prior_feedback(...)`')
     .replace(/\[PRIOR:STATUS\]/g, '`prior_status()`')
-    // Future: parameterized contribute with pre-fill
     .replace(/\[PRIOR:CONTRIBUTE ([^\]]+)\]/g, (_match, attrs) => {
       return `\`prior_contribute(${attrs})\``;
     });

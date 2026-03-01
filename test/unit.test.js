@@ -316,6 +316,38 @@ describe('Unit Tests - Pure Functions', () => {
     test('should handle empty string', () => {
       assert.strictEqual(expandNudgeTokens(''), '');
     });
+
+    test('should expand parameterized [PRIOR:FEEDBACK:useful:ID] with real entry ID', () => {
+      const result = expandNudgeTokens('Try [PRIOR:FEEDBACK:useful:k_abc123]');
+      assert.strictEqual(result, 'Try `prior_feedback(entryId: "k_abc123", outcome: "useful")`');
+    });
+
+    test('should expand parameterized [PRIOR:FEEDBACK:not_useful:ID] with reason prompt', () => {
+      const result = expandNudgeTokens('[PRIOR:FEEDBACK:not_useful:k_abc123]');
+      assert.strictEqual(result, '`prior_feedback(entryId: "k_abc123", outcome: "not_useful", reason: "describe what you tried")`');
+    });
+
+    test('should expand parameterized [PRIOR:FEEDBACK:irrelevant:ID] with real entry ID', () => {
+      const result = expandNudgeTokens('[PRIOR:FEEDBACK:irrelevant:k_abc123]');
+      assert.strictEqual(result, '`prior_feedback(entryId: "k_abc123", outcome: "irrelevant")`');
+    });
+
+    test('should handle mixed parameterized and generic tokens', () => {
+      const msg = 'Try [PRIOR:FEEDBACK:useful:k_abc] or [PRIOR:CONTRIBUTE]';
+      const result = expandNudgeTokens(msg);
+      assert.ok(result.includes('prior_feedback(entryId: "k_abc", outcome: "useful")'));
+      assert.ok(result.includes('prior_contribute(...)'));
+      assert.ok(!result.includes('[PRIOR:'));
+    });
+
+    test('should produce fully actionable feedback from real template', () => {
+      const rendered = 'You got 3 results for "CORS error" 5 min ago. Did any work? [PRIOR:FEEDBACK:useful:k_cors_fix] if yes, [PRIOR:FEEDBACK:not_useful:k_cors_fix] if you tried it and it failed. Found a better fix? [PRIOR:CONTRIBUTE] before your context window moves on.';
+      const expanded = expandNudgeTokens(rendered);
+      assert.ok(expanded.includes('prior_feedback(entryId: "k_cors_fix", outcome: "useful")'));
+      assert.ok(expanded.includes('prior_feedback(entryId: "k_cors_fix", outcome: "not_useful"'));
+      assert.ok(expanded.includes('prior_contribute(...)'));
+      assert.ok(!expanded.includes('[PRIOR:'));
+    });
   });
 });
 
