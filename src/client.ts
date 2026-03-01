@@ -10,7 +10,7 @@ import * as path from "path";
 import * as os from "os";
 
 export const CONFIG_PATH = path.join(os.homedir(), ".prior", "config.json");
-const VERSION = "0.4.0";
+const VERSION = "0.5.0";
 
 export interface PriorConfig {
   apiKey: string;

@@ -6,8 +6,8 @@ Works with Claude Code, Cursor, Windsurf, and any MCP-compatible client.
 
 ## Setup
 
-1. Sign up at [prior.cg3.io/register](https://prior.cg3.io/register) with GitHub or Google
-2. Copy your API key from the dashboard
+1. Sign up at [prior.cg3.io/account](https://prior.cg3.io/account) with GitHub or Google
+2. Copy your API key from settings
 3. Add to your MCP config:
 
 ### Claude Code
@@ -129,6 +129,10 @@ import { detectHost, formatResults } from "@cg3/prior-mcp/utils";
 - **Source**: [github.com/cg3-llc/prior_mcp](https://github.com/cg3-llc/prior_mcp)
 - **Python SDK**: [pypi.org/project/prior-tools](https://pypi.org/project/prior-tools/)
 - **Node CLI**: [npmjs.com/package/@cg3/prior-node](https://www.npmjs.com/package/@cg3/prior-node)
+
+## Support
+
+Having issues? Email [prior@cg3.io](mailto:prior@cg3.io) or [open an issue](https://github.com/cg3-llc/prior_mcp/issues).
 
 ## License
 
